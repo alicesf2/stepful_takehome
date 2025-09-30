@@ -1,26 +1,39 @@
-import type { Quiz } from "@/components/quiz";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { quizApiUrl, rootPath } from "@/paths";
+import { quizQuestionsApiUrl, rootPath } from "@/paths";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
+
+export type QuizQuestion = {
+	id: number;
+	question_content: string;
+	choices: string;
+};
 
 export function QuizPage() {
 	const { id } = useParams();
+	const location = useLocation();
+	console.log(location);
+	const title = location.state?.title || "Quiz";
 	if (!id) throw new Error("Quiz id param is required");
 
-	const [quiz, setQuiz] = useState<Quiz | null>(null);
+	const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[] | null>(null);
+	const [quizAnswers, setQuizAnswers] = useState<string[][]>([]);
 	const [error, setError] = useState<Error | null>(null);
+
 	useEffect(() => {
-		fetch(quizApiUrl({ id }))
+		fetch(quizQuestionsApiUrl({ id }))
 			.then((res) => res.json())
-			.then(setQuiz)
+			.then((questions) => {
+				setQuizQuestions(questions);
+				console.log(questions);
+				questions.forEach((question: QuizQuestion) => setQuizAnswers((prev) => [...prev, question.choices?.split(";;")]));
+			})
 			.catch(setError);
 	}, [id]);
 
@@ -32,15 +45,31 @@ export function QuizPage() {
 			</div>
 		);
 
-	if (!quiz) return <div className="text-center p-8">Loading...</div>;
+	if (!quizQuestions) return <div className="text-center p-8">Loading...</div>;
+
+	console.log(quizQuestions);
 
 	return (
-		<Card className="w-[600px] mx-auto">
+		<Card className="w-[600px] mx-auto p-4">
 			<CardHeader className="pb-8">
-				<CardTitle>Quiz #{quiz.id}</CardTitle>
-				<CardDescription>Quiz details below...</CardDescription>
+				<CardTitle className="text-center">{title}</CardTitle>
 			</CardHeader>
-			<CardContent>Quiz name: {quiz.name}</CardContent>
+			<CardContent>
+				<ol className="list-decimal">
+					{quizQuestions.map((question, index) => (
+						<li className="mb-4" key={question.id}>
+							<h3>{question.question_content}</h3>
+							<ol className="list-lower-alpha ml-4">
+								{quizAnswers[index]?.map((answer: string) => (
+									<li key={answer}>
+										<p>{answer}</p>
+									</li>
+								))}
+							</ol>
+						</li>
+					))}
+				</ol>
+			</CardContent>
 			<CardFooter className="flex justify-between pt-8">
 				<Link
 					to={rootPath.pattern}

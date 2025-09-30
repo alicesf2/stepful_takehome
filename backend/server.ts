@@ -30,6 +30,12 @@ server.get("/quizzes/:id", (request, reply) => {
 	return data.get(request.params);
 });
 
+server.get("/quizzes/:id/questions", (request, reply) => {
+	const data = db.prepare("SELECT * FROM assignment_questions WHERE assignment_id = :id");
+
+	return data.all(request.params);
+});
+
 server.listen({ port: PORT }, (err) => {
 	if (err) {
 		console.error(err);
