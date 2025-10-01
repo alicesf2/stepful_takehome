@@ -1,6 +1,7 @@
 import cors from "@fastify/cors";
 import fastify from "fastify";
 import { db } from "./db-client";
+import OpenAI from "openai";
 
 const server = fastify();
 
@@ -34,6 +35,31 @@ server.get("/quizzes/:id/questions", (request, reply) => {
 	const data = db.prepare("SELECT * FROM assignment_questions WHERE assignment_id = :id");
 
 	return data.all(request.params);
+});
+
+server.post("/grade-answer", async (request, reply) => {
+	const { question, answer } = request.body as { question: string; answer: string };
+
+	console.log(question)
+	console.log(answer)
+
+	const openai = new OpenAI({
+		apiKey: "alicesfang@gmail.com",
+		baseURL: "https://interview-ai.stepful.com/v1",
+	});
+
+	const response = await openai.chat.completions.create({
+		model: "gpt-4o-2024-08-06",
+		messages: [
+			{
+				role: "user",
+				content: `Please grade this response to this question out of 5 points. The question is ${question}. The response is ${answer}.`,
+			},
+		],
+		temperature: 0.7,
+	});
+
+	return { feedback: response.choices[0].message.content };
 });
 
 server.listen({ port: PORT }, (err) => {

@@ -27,7 +27,9 @@ export function QuizPage() {
 	const [quizAnswers, setQuizAnswers] = useState<string[][]>([]);
 	const [correctAnswers, setCorrectAnswers] = useState<number[]>([]);
 	const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
+	const [openEndedAnswer, setOpenEndedAnswer] = useState<string>("");
 	const [error, setError] = useState<Error | null>(null);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
 		fetch(quizQuestionsApiUrl({ id }))
@@ -58,13 +60,31 @@ export function QuizPage() {
 		}));
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setIsSubmitting(true);
 		const correctCount = Object.entries(selectedAnswers).reduce((count, [questionId, selectedIndex]) => {
 			const questionIndex = quizQuestions.findIndex(q => q.id === Number(questionId));
 			return Number(selectedIndex) === correctAnswers[questionIndex] ? count + 1 : count;
 		}, 0);
+
+		// Grade the open-ended question (question index 4)
+		const response = await fetch("http://localhost:3001/grade-answer", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				question: quizQuestions[4].question_content,
+				answer: openEndedAnswer,
+			}),
+		});
+
+		const data = await response.json();
+		console.log("AI Feedback:", data.feedback);
+		  
 		console.log(`You got ${correctCount} out of ${quizQuestions.length} questions correct.`);
+		setIsSubmitting(false);
 	};
 
 	return (
@@ -91,7 +111,7 @@ export function QuizPage() {
 											<span>{answer}</span>
 										</label>
 									))}
-									{!question.choices && <textarea className="w-full p-2 border rounded-md mt-2" />}
+									{!question.choices && <textarea className="w-full p-2 border rounded-md mt-2" onChange={(e) => setOpenEndedAnswer(e.target.value)} />}
 								</div>
 							</li>
 						))}
@@ -104,7 +124,7 @@ export function QuizPage() {
 					>
 						Back to home page
 					</Link>
-					<Button type="submit">Submit Answers</Button>
+					<Button type="submit">{isSubmitting ? "Submitting..." : "Submit Answers"}</Button>
 				</CardFooter>
 			</form>
 		</Card>

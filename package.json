@@ -16,5 +16,11 @@
 		"concurrently": "^8.2.2",
 		"typescript": "^5.7.2"
 	},
-	"workspaces": ["backend", "frontend"]
+	"workspaces": [
+		"backend",
+		"frontend"
+	],
+	"dependencies": {
+		"openai": "^6.0.0"
+	}
 }
