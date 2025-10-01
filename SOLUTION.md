@@ -12,7 +12,7 @@ I prioritized student learning and feedback in my approach in a few ways:
 - For the AI-graded question, I made sure to count empty or gibberish submissions as 0, and award partial points for partially correct or unspecific answers.
 - I created a realistic scoring system of 1 point to each multiple choice and 5 points to the free response question, for which the AI would decide how many points out of 5 the response scored.
 
-For the sake of this takehome, I assumed a quiz would always be 5 questions with the free response question being the last one, but if I had more time I would have it support quizzes of any length with any number of free response questions.
+For the sake of this takehome, I assumed a quiz would always be 5 questions with the free response question being the last one, but if I had more time I would have it support quizzes of any length with any number of free response questions. I would also have extracted some parts of the quiz page into their own components for cleaner state management.
 
 I didn't have time to include a few things in the user stories I chose to focus on, like the timer or persisting progress if the user navigates away from the page. Even though progress persistence is important, I felt that it wasn't super necessary for an MVP so I spent more time refining the quiz and feedback UIs.
 
