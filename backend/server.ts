@@ -53,7 +53,7 @@ server.post("/grade-answer", async (request, reply) => {
 		messages: [
 			{
 				role: "user",
-				content: `Please grade this response to this question out of 5 points. The question is ${question}. The response is ${answer}.`,
+				content: `Please grade this response to this question out of 5 points. The question is ${question}. The response is ${answer}. The student should get 0 points for an empty submission. They shouldnot get a point for just answering, but should be awarded partial points for a partially correct answer. Limit the feedback to 1-2 sentences.`,
 			},
 		],
 		temperature: 0.7,
